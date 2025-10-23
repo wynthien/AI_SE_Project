@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot với Gemini</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        #chat-messages { border: 1px solid #ccc; height: 400px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
+        .message { margin-bottom: 10px; }
+        .user { text-align: right; color: blue; }
+        .bot { color: green; }
+        #message-input { width: 70%; padding: 10px; }
+        button { padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Chatbot sử dụng Gemini AI</h1>
+    <div id="chat-messages"></div>
+    <input type="text" id="message-input" placeholder="Nhập tin nhắn của bạn..." />
+    <button onclick="sendMessage()">Gửi</button>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Hiển thị tin nhắn của người dùng
+            addMessage('user', message);
+            input.value = '';
+
+            try {
+                // Gửi đến server
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    addMessage('bot', data.reply);
+                } else {
+                    addMessage('bot', 'Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                addMessage('bot', 'Lỗi kết nối');
+            }
+        }
+
+        function addMessage(sender, text) {
+            const messages = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = sender + ' message';
+            div.innerHTML = '<strong>' + (sender === 'user' ? 'Bạn: ' : 'Bot: ') + '</strong>' + text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Nhấn Enter để gửi
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
