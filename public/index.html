@@ -39,7 +39,7 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    addMessage('bot', data.reply);
+                    addMessage('bot', data.reply || data.todoList);
                 } else {
                     addMessage('bot', 'Lỗi: ' + data.error);
                 }

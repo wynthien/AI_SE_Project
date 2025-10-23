@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Khởi tạo Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
 const handleChat = async (req, res) => {
   const userMessage = req.body.message;
@@ -23,22 +23,34 @@ const handleChat = async (req, res) => {
 };
 
 const chatBA = async (req, res) => {
-  const { userStory } = req.body.message;
+  const { message } = req.body;
 
   const prompt = `
-Bạn là một Business Analyst chuyên nghiệp.
-Hãy tạo danh sách công việc (to-do list) chi tiết cho BA dựa trên user story sau.
-- Trả lời bằng tiếng Việt
-- Dùng định dạng: "- [ ] ..."
-- Bao gồm: làm rõ yêu cầu, tiêu chí chấp nhận, UI/UX, tích hợp hệ thống, trường hợp biên, metric
+📌 Bạn là một Business Analyst chuyên nghiệp. 
+NHIỆM VỤ: Chỉ tạo ra danh sách công việc (to-do list) cho BA — KHÔNG GIẢI THÍCH, KHÔNG CHÀO HỎI, KHÔNG THÊM VĂN BẢN.
 
-User story: "${userStory}"
-  `;
+✅ YÊU CẦU BẮT BUỘC:
+- Trả lời bằng tiếng Việt.
+- Chỉ dùng định dạng: "- [ ] ..."
+- Chia thành 3 phần rõ ràng (ghi tiêu đề):
+  I. PHÂN TÍCH YÊU CẦU
+  II. TIÊU CHÍ CHẤP NHẬN
+  III. CÔNG VIỆC CỤ THỂ CHO BA
+
+❌ CẤM:
+- Viết đoạn mở đầu/đóng kết
+- Dùng dấu sao (*), ngoặc kép ("), số thứ tự (1., 2.)
+- Giải thích logic
+
+User story: "${message}"
+
+➡️ Bắt đầu ngay bằng chữ "I." — Không có ngoại lệ!
+`;
 
   try {
     const result = await model.generateContent(prompt);
     const todoList = result.response.text();
-    res.json({ todoList });
+    res.json({ reply: todoList });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Không thể tạo to-do list' });
