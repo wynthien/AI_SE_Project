@@ -109,15 +109,7 @@ const config = {
   // projects: undefined,
 
   // Use this configuration option to add custom reporters to Jest
-  reporters: [
-    "default",
-    ["jest-html-reporters", {
-      "publicPath": "./test-results",
-      "filename": "test-report.html",
-      "expand": true,
-      "openReport": false
-    }]
-  ],
+  // reporters: undefined,
 
   // Automatically reset mock state before every test
   // resetMocks: false,
@@ -145,8 +137,8 @@ const config = {
   // The paths to modules that run some code to configure or set up the testing environment before each test
   // setupFiles: [],
 
-  // The paths to modules that run some code to configure or set up the testing framework before each test
-  setupFilesAfterEnv: ["<rootDir>/tests/setup.js"],
+  // A list of paths to modules that run some code to configure or set up the testing framework before each test
+  // setupFilesAfterEnv: [],
 
   // The number of seconds after which a test is considered as slow and reported as such in the results.
   // slowTestThreshold: 5,
@@ -155,19 +147,19 @@ const config = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: "node",
+  // testEnvironment: "jest-environment-node",
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
 
   // Adds a location field to test results
-  testLocationInResults: true,
+  // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-  testMatch: [
-    "**/tests/**/?(*.)+(spec|test).js",
-    "**/?(*.)+(spec|test).js"
-  ],
+  // testMatch: [
+  //   "**/__tests__/**/*.?([mc])[jt]s?(x)",
+  //   "**/?(*.)+(spec|test).?([mc])[jt]s?(x)"
+  // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [
