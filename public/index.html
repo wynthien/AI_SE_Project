@@ -15,10 +15,12 @@
     </style>
 </head>
 <body>
-    <h1>Chatbot sử dụng Gemini AI</h1>
+    <h1>Chatbot sử dụng Gemini AI cho BA</h1>
     <div id="chat-messages"></div>
-    <input type="text" id="message-input" placeholder="Nhập tin nhắn của bạn..." />
+    <input type="text" id="message-input" placeholder="Nhập user story của bạn..." />
     <button onclick="sendMessage()">Gửi</button>
+    <button id="load-todos" onclick="loadAcceptedTodos()">Xem TodoLists đã chấp nhận</button>
+    <div id="todos-list"></div>
 
     <script>
         async function sendMessage() {
@@ -39,7 +41,12 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    addMessage('bot', data.reply || data.todoList);
+                    lastParsed = null;
+                    lastUserStory = message;
+                    addMessage('bot', data.reply, !!data.parsed);
+                    if (data.parsed) {
+                        lastParsed = data.parsed;
+                    }
                 } else {
                     addMessage('bot', 'Lỗi: ' + data.error);
                 }
@@ -48,11 +55,17 @@
             }
         }
 
-        function addMessage(sender, text) {
+        function addMessage(sender, text, addAcceptButton = false) {
             const messages = document.getElementById('chat-messages');
             const div = document.createElement('div');
             div.className = sender + ' message';
             div.innerHTML = '<strong>' + (sender === 'user' ? 'Bạn: ' : 'Bot: ') + '</strong>' + text.replace(/\n/g, '<br>');
+            if (addAcceptButton) {
+                const acceptBtn = document.createElement('button');
+                acceptBtn.textContent = 'Chấp nhận TodoList';
+                acceptBtn.onclick = acceptTodo;
+                div.appendChild(acceptBtn);
+            }
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
         }
@@ -63,6 +76,63 @@
                 sendMessage();
             }
         });
+
+        let lastParsed = null;
+        let lastUserStory = null;
+
+        // Hàm chấp nhận TodoList
+        async function acceptTodo() {
+            if (!lastParsed || !lastUserStory) {
+                alert('Không có dữ liệu để chấp nhận!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/accept', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userStory: lastUserStory, sections: lastParsed })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('TodoList đã chấp nhận và lưu thành công!');
+                    loadAcceptedTodos(); // Tải lại danh sách
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối khi chấp nhận TodoList');
+            }
+        }
+
+        // Hàm tải danh sách TodoList đã chấp nhận
+        async function loadAcceptedTodos() {
+            try {
+                const response = await fetch('/api/todos');
+                if (!response.ok) throw new Error('Failed to fetch');
+                const todos = await response.json();
+                const container = document.getElementById('todos-list');
+                container.innerHTML = '<h2>Danh sách TodoLists đã chấp nhận:</h2>';
+                if (todos.length === 0) {
+                    container.innerHTML += '<p>Chưa có TodoList nào.</p>';
+                    return;
+                }
+                todos.forEach(todo => {
+                    let html = `<div><h3>${todo.userStory}</h3>`;
+                    todo.sections.forEach(section => {
+                        html += `<h4>${section.title}</h4><ul>`;
+                        section.tasks.forEach(task => {
+                            html += `<li>${task}</li>`;
+                        });
+                        html += '</ul>';
+                    });
+                    html += '</div>';
+                    container.innerHTML += html;
+                });
+            } catch (error) {
+                console.error('Error loading todos:', error);
+            }
+        }
     </script>
 </body>
 </html>

@@ -1,9 +1,15 @@
 require('dotenv/config');
 const express = require('express');
+const mongoose = require('mongoose');
 const chatRoutes = require('./routes/chat');
 
 const app = express();
 const port = 3000;
+
+// Kết nối Mongoose
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware để parse JSON
 app.use(express.json());
