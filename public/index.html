@@ -16,6 +16,7 @@
 </head>
 <body>
     <h1>Chatbot sử dụng Gemini AI cho BA</h1>
+    <div id="requests-list"></div>
     <div id="chat-messages"></div>
     <input type="text" id="message-input" placeholder="Nhập user story của bạn..." />
     <button onclick="sendMessage()">Gửi</button>
@@ -23,6 +24,8 @@
     <div id="todos-list"></div>
 
     <script>
+        let requestCount = 0;
+
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
@@ -41,17 +44,104 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    lastParsed = null;
-                    lastUserStory = message;
-                    addMessage('bot', data.reply, !!data.parsed);
-                    if (data.parsed) {
-                        lastParsed = data.parsed;
-                    }
+                    // Add chat message
+                    addMessage('bot', data.reply, false);
+                    // Also add a numbered request entry with a dropdown showing the parsed todo
+                    requestCount += 1;
+                    addRequestEntry(requestCount, message, data.parsed, data.reply);
                 } else {
                     addMessage('bot', 'Lỗi: ' + data.error);
                 }
             } catch (error) {
                 addMessage('bot', 'Lỗi kết nối');
+            }
+        }
+
+        // Add a numbered request entry with a details dropdown showing parsed sections or raw reply
+        function addRequestEntry(number, userStory, parsed, rawReply) {
+            const container = document.getElementById('requests-list');
+            const entry = document.createElement('div');
+            entry.className = 'request-entry';
+            entry.style.border = '1px solid #ddd';
+            entry.style.padding = '8px';
+            entry.style.marginBottom = '8px';
+
+            const header = document.createElement('div');
+            header.innerHTML = `<strong>${number}. ${escapeHtml(userStory)}</strong>`;
+            entry.appendChild(header);
+
+            const details = document.createElement('details');
+            const summary = document.createElement('summary');
+            summary.textContent = 'Xem TodoList cho BA';
+            details.appendChild(summary);
+
+            const content = document.createElement('div');
+            content.style.marginTop = '8px';
+
+            if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                parsed.forEach(section => {
+                    const h = document.createElement('h4');
+                    h.textContent = section.title;
+                    content.appendChild(h);
+                    const ul = document.createElement('ul');
+                    (section.tasks || []).forEach(task => {
+                        const li = document.createElement('li');
+                        li.textContent = task;
+                        ul.appendChild(li);
+                    });
+                    content.appendChild(ul);
+                });
+            } else {
+                // show raw reply as preformatted
+                const pre = document.createElement('pre');
+                pre.style.whiteSpace = 'pre-wrap';
+                pre.textContent = rawReply || 'Không có nội dung.';
+                content.appendChild(pre);
+            }
+
+            // Accept button per entry
+            const acceptBtn = document.createElement('button');
+            acceptBtn.textContent = 'Chấp nhận TodoList này';
+            acceptBtn.style.marginTop = '8px';
+            acceptBtn.onclick = function () {
+                acceptTodoWith(userStory, parsed);
+            };
+            content.appendChild(acceptBtn);
+
+            details.appendChild(content);
+            entry.appendChild(details);
+            container.appendChild(entry);
+        }
+
+        // Escape HTML to prevent injection
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>\"']/g, function (c) {
+                return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c];
+            });
+        }
+
+        // Accept a specific todo (userStory + parsed sections)
+        async function acceptTodoWith(userStory, parsed) {
+            if (!parsed || !userStory) {
+                alert('Không có dữ liệu để chấp nhận!');
+                return;
+            }
+            try {
+                const response = await fetch('/api/accept', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userStory: userStory, sections: parsed })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('TodoList đã chấp nhận và lưu thành công!');
+                    loadAcceptedTodos();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                alert('Lỗi kết nối khi chấp nhận TodoList');
             }
         }
 
