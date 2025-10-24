@@ -9,7 +9,7 @@
         #chat-messages { border: 1px solid #ccc; height: 400px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
         .message { margin-bottom: 10px; }
         .user { text-align: right; color: blue; }
-        .bot { color: green; }
+        .bot { color: green; white-space: pre-wrap; }
         #message-input { width: 70%; padding: 10px; }
         button { padding: 10px; }
     </style>
@@ -52,7 +52,7 @@
             const messages = document.getElementById('chat-messages');
             const div = document.createElement('div');
             div.className = sender + ' message';
-            div.innerHTML = '<strong>' + (sender === 'user' ? 'Bạn: ' : 'Bot: ') + '</strong>' + text;
+            div.innerHTML = '<strong>' + (sender === 'user' ? 'Bạn: ' : 'Bot: ') + '</strong>' + text.replace(/\n/g, '<br>');
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
         }

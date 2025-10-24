@@ -32,7 +32,7 @@ NHIỆM VỤ: Chỉ tạo ra danh sách công việc (to-do list) cho BA — KH�
 ✅ YÊU CẦU BẮT BUỘC:
 - Trả lời bằng tiếng Việt.
 - Chỉ dùng định dạng: "- [ ] ..."
-- Chia thành 3 phần rõ ràng (ghi tiêu đề):
+- Chia thành 3 phần rõ ràng (ghi tiêu đề): 
   I. PHÂN TÍCH YÊU CẦU
   II. TIÊU CHÍ CHẤP NHẬN
   III. CÔNG VIỆC CỤ THỂ CHO BA
