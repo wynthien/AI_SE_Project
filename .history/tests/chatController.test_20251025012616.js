@@ -31,10 +31,6 @@ describe('ChatController - handleChat', () => {
     mockGenerateContent.mockReset();
   });
 
-  afterEach(() => {
-    restoreAllStubs();
-  });
-
   describe('Validation Tests', () => {
     test('should return 400 when message is missing', async () => {
       const req = createMockRequest({ body: {} });
@@ -120,10 +116,6 @@ describe('ChatController - chatBA', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGenerateContent.mockReset();
-  });
-
-  afterEach(() => {
-    restoreAllStubs();
   });
 
   describe('Business Analyst Mode Tests', () => {

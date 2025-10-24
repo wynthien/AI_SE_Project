@@ -122,10 +122,6 @@ describe('ChatController - chatBA', () => {
     mockGenerateContent.mockReset();
   });
 
-  afterEach(() => {
-    restoreAllStubs();
-  });
-
   describe('Business Analyst Mode Tests', () => {
     test('should generate BA todo list from user story', async () => {
       const mockTodoList = `I. PHÂN TÍCH YÊU CẦU
