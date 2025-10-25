@@ -57,3 +57,4 @@ Sử dụng mô hình MVC để tổ chức code:
 
 - Không lưu API key trực tiếp trong code. Sử dụng biến môi trường (env) thay thế.
 - Giới hạn rate limiting để tránh lạm dụng API.
+
